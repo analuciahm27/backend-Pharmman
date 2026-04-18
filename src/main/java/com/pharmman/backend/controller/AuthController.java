@@ -38,9 +38,11 @@ public class AuthController {
         cookie.setMaxAge(60 * 15);   // 15 minutos
         response.addCookie(cookie);
 
-        // ya no mandamos el token en el body
-        loginResponse.setToken(null);
-        return ResponseEntity.ok(loginResponse);
+        LoginResponse resp = authService.login(request);
+        // ... configuras tu cookie con resp.getToken() ...
+
+        resp.setToken(null); // Al ser null, @JsonInclude lo ELIMINA del JSON
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping("/logout")
@@ -63,7 +65,7 @@ public class AuthController {
         
         String email = authentication.getName();
         LoginResponse userDetails = authService.getUsuarioActual(email);
-        
+        userDetails.setToken(null);
         return ResponseEntity.ok(userDetails);
     }
     
