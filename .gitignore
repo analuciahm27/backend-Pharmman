@@ -1,0 +1,28 @@
+### Java / Maven ###
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/wrapper/maven-wrapper.jar
+
+### Configuración Personal (CRÍTICO) ###
+src/main/resources/application.properties
+
+### Editores (VS Code, IntelliJ, STS) ###
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.factorypath
+.springBeans
+.sts4-cache
+
+### Sistema ###
+.DS_Store
+Thumbs.db
