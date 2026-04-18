@@ -55,4 +55,27 @@ public class AuthService {
             permisos
         );
     }
+    public LoginResponse getUsuarioActual(String email) {
+        // 1. Buscamos al usuario por el email (que viene del token validado)
+        Usuario usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // 2. Mapeamos sus permisos (puedes refactorizar esto a un método privado si quieres)
+        List<String> permisos = usuario.getRol().getPermisos()
+            .stream()
+            .map(Permiso::getNombre)
+            .toList();
+
+        // 3. Devolvemos el LoginResponse pero con el token en null 
+        // (porque el token ya vive en la cookie del navegador)
+        return new LoginResponse(
+            null, 
+            usuario.getNombre(),
+            usuario.getApellidoPaterno(),
+            usuario.getEmail(),
+            usuario.getRol().getNombre(),
+            permisos
+        );
+    }
+    
 }
