@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.pharmman.backend.entity.Usuario;
 
 @Repository
-public interface IUsuarioRepository extends JpaRepository<Usuario, Long> {
+public interface IUsuarioRepository extends JpaRepository<Usuario, Integer> {
     Optional<Usuario> findByEmail(String email);
     boolean existsByEmail(String email);
 }

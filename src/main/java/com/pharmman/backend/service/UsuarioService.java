@@ -66,7 +66,7 @@ public class UsuarioService {
         );
     }
 
-    public UsuarioResponse cambiarEstado(Long id) {
+    public UsuarioResponse cambiarEstado(Integer id) {
         Usuario usuario = usuarioRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         usuario.setEstado(!usuario.isEstado());

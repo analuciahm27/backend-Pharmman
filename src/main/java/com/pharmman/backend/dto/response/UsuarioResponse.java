@@ -1,12 +1,12 @@
 package com.pharmman.backend.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.AllArgsConstructor;
 
 @Data
 @AllArgsConstructor
 public class UsuarioResponse {
-    private Long id;
+    private Integer id;
     private String nombre;
     private String apellidoPaterno;
     private String apellidoMaterno;

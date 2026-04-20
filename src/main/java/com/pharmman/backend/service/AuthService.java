@@ -1,26 +1,25 @@
 package com.pharmman.backend.service;
 
-import java.util.List;
-
+import com.pharmman.backend.dto.request.LoginRequest;
+import com.pharmman.backend.dto.response.LoginResponse;
+import com.pharmman.backend.dto.response.RolPermisoResponse;
+import com.pharmman.backend.entity.Usuario;
+import com.pharmman.backend.repository.IRolPermisoRepository;
+import com.pharmman.backend.repository.IUsuarioRepository;
+import com.pharmman.backend.security.JwtUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import com.pharmman.backend.dto.request.LoginRequest;
-import com.pharmman.backend.dto.response.LoginResponse;
-import com.pharmman.backend.entity.Permiso;
-import com.pharmman.backend.entity.Usuario;
-import com.pharmman.backend.repository.IUsuarioRepository;
-import com.pharmman.backend.security.JwtUtil;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final IUsuarioRepository usuarioRepository;
+    private final IRolPermisoRepository rolPermisoRepository;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
@@ -41,9 +40,16 @@ public class AuthService {
 
         String token = jwtUtil.generateAccessToken(userDetails);
 
-        List<String> permisos = usuario.getRol().getPermisos()
+        // obtiene permisos por módulo del rol del usuario
+        List<RolPermisoResponse> permisos = rolPermisoRepository
+            .findByRolId(usuario.getRol().getId())
             .stream()
-            .map(Permiso::getNombre)
+            .map(rp -> new RolPermisoResponse(
+                rp.getId(),
+                rp.getModulo().getNombre(),
+                rp.isLectura(),
+                rp.isEscritura()
+            ))
             .toList();
 
         return new LoginResponse(
@@ -56,20 +62,22 @@ public class AuthService {
         );
     }
     public LoginResponse getUsuarioActual(String email) {
-        // 1. Buscamos al usuario por el email (que viene del token validado)
         Usuario usuario = usuarioRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // 2. Mapeamos sus permisos (puedes refactorizar esto a un método privado si quieres)
-        List<String> permisos = usuario.getRol().getPermisos()
+        List<RolPermisoResponse> permisos = rolPermisoRepository
+            .findByRolId(usuario.getRol().getId())
             .stream()
-            .map(Permiso::getNombre)
+            .map(rp -> new RolPermisoResponse(
+                rp.getId(),
+                rp.getModulo().getNombre(),
+                rp.isLectura(),
+                rp.isEscritura()
+            ))
             .toList();
 
-        // 3. Devolvemos el LoginResponse pero con el token en null 
-        // (porque el token ya vive en la cookie del navegador)
         return new LoginResponse(
-            null, 
+            null,  // no devuelve token
             usuario.getNombre(),
             usuario.getApellidoPaterno(),
             usuario.getEmail(),
@@ -77,5 +85,4 @@ public class AuthService {
             permisos
         );
     }
-    
 }

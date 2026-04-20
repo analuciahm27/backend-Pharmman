@@ -1,24 +1,25 @@
 package com.pharmman.backend.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
-import com.pharmman.backend.dto.request.AsignarPermisosRequest;
 import com.pharmman.backend.dto.request.CrearRolRequest;
-import com.pharmman.backend.entity.Permiso;
+import com.pharmman.backend.dto.request.RolPermisoRequest;
+import com.pharmman.backend.dto.response.RolPermisoResponse;
+import com.pharmman.backend.entity.Modulo;
 import com.pharmman.backend.entity.Rol;
-import com.pharmman.backend.repository.IPermisoRepository;
+import com.pharmman.backend.entity.RolPermiso;
+import com.pharmman.backend.repository.IModuloRepository;
+import com.pharmman.backend.repository.IRolPermisoRepository;
 import com.pharmman.backend.repository.IRolRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class RolService {
 
     private final IRolRepository rolRepository;
-    private final IPermisoRepository permisoRepository;
+    private final IModuloRepository moduloRepository;
+    private final IRolPermisoRepository rolPermisoRepository;
 
     public List<Rol> listarRoles() {
         return rolRepository.findAll();
@@ -31,18 +32,37 @@ public class RolService {
         return rolRepository.save(rol);
     }
 
-    public Rol asignarPermisos(AsignarPermisosRequest request) {
-        Rol rol = rolRepository.findById(request.getRolId())
-            .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-
-        List<Permiso> permisos = permisoRepository
-            .findAllById(request.getPermisoIds());
-
-        rol.setPermisos(permisos);
-        return rolRepository.save(rol);
+    public List<Modulo> listarModulos() {
+        return moduloRepository.findAll();
     }
 
-    public List<Permiso> listarPermisos() {
-        return permisoRepository.findAll();
+    public List<RolPermisoResponse> getPermisosPorRol(Integer rolId) {
+        return rolPermisoRepository.findByRolId(rolId)
+            .stream()
+            .map(rp -> new RolPermisoResponse(
+                rp.getId(),
+                rp.getModulo().getNombre(),
+                rp.isLectura(),
+                rp.isEscritura()
+            ))
+            .toList();
+    }
+
+    public RolPermiso actualizarPermiso(RolPermisoRequest request) {
+        RolPermiso rp = rolPermisoRepository
+            .findByRolIdAndModuloId(request.getRolId(), request.getModuloId())
+            .orElse(new RolPermiso());
+
+        Rol rol = rolRepository.findById(request.getRolId())
+            .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+        Modulo modulo = moduloRepository.findById(request.getModuloId())
+            .orElseThrow(() -> new RuntimeException("Módulo no encontrado"));
+
+        rp.setRol(rol);
+        rp.setModulo(modulo);
+        rp.setLectura(request.isLectura());
+        rp.setEscritura(request.isEscritura());
+
+        return rolPermisoRepository.save(rp);
     }
 }

@@ -4,16 +4,13 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "Rol")
+@Table(name = "Modulo")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Rol {
+public class Modulo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,8 +19,4 @@ public class Rol {
     private String nombre;
     private String descripcion;
     private boolean estado = true;
-
-    @OneToMany(mappedBy = "rol", fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<RolPermiso> permisos = new ArrayList<>();
 }

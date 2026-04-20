@@ -36,7 +36,7 @@ public class UsuarioController {
     }
 
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<UsuarioResponse> cambiarEstado(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponse> cambiarEstado(@PathVariable Integer id) {
         return ResponseEntity.ok(usuarioService.cambiarEstado(id));
     }
 }
