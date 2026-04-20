@@ -9,5 +9,5 @@ public class CrearUsuarioRequest {
     private String apellidoMaterno;
     private String email;
     private String password;
-    private Long rolId;
+    private Integer rolId;
 }

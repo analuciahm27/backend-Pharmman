@@ -1,8 +1,12 @@
 package com.pharmman.backend.controller;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pharmman.backend.dto.request.LoginRequest;
 import com.pharmman.backend.dto.response.LoginResponse;
-import com.pharmman.backend.entity.Usuario;
 import com.pharmman.backend.service.AuthService;
 
 import jakarta.servlet.http.Cookie;
@@ -31,42 +34,47 @@ public class AuthController {
             HttpServletResponse response) {
 
         LoginResponse loginResponse = authService.login(request);
+
+        // setea la cookie HttpOnly con el token
         Cookie cookie = new Cookie("jwt", loginResponse.getToken());
-        cookie.setHttpOnly(true);    // JavaScript no puede leerla
-        cookie.setSecure(false);     // true en producción con HTTPS
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);    // true en producción con HTTPS
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 15);   // 15 minutos
+        cookie.setMaxAge(60 * 15); // 15 minutos
         response.addCookie(cookie);
 
-        LoginResponse resp = authService.login(request);
-        // ... configuras tu cookie con resp.getToken() ...
-
-        resp.setToken(null); // Al ser null, @JsonInclude lo ELIMINA del JSON
-        return ResponseEntity.ok(resp);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
-        // borra la cookie
+    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(0); // expira inmediatamente
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity.ok(Map.of("message", "Sesión cerrada correctamente"));
     }
     @GetMapping("/me")
     public ResponseEntity<LoginResponse> getMe(Authentication authentication) {
-        // authentication es llenado automáticamente por Spring Security 
-        // después de validar el JWT que viene en la cookie
+        System.out.println("=== CONTROLLER /me === auth = " + authentication);
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
         String email = authentication.getName();
         LoginResponse userDetails = authService.getUsuarioActual(email);
         userDetails.setToken(null);
         return ResponseEntity.ok(userDetails);
+    }
+    
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentials() {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(Map.of("error", "Credenciales incorrectas"));
     }
     
 }

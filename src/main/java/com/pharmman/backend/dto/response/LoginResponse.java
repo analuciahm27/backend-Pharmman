@@ -1,22 +1,19 @@
 package com.pharmman.backend.dto.response;
 
+import lombok.Data;
+import lombok.AllArgsConstructor;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LoginResponse {
+    @JsonIgnore
     private String token;
     private String nombre;
     private String apellidoPaterno;
     private String email;
     private String rol;
-    private List<String> permisos;
+    private List<RolPermisoResponse> permisos;
 }
