@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.pharmman.backend.dto.request.CrearUsuarioRequest;
+import com.pharmman.backend.dto.request.EditarUsuarioRequest;
 import com.pharmman.backend.dto.response.UsuarioResponse;
 import com.pharmman.backend.entity.Rol;
 import com.pharmman.backend.entity.Usuario;
@@ -79,6 +80,36 @@ public class UsuarioService {
             usuario.getEmail(),
             usuario.getRol().getNombre(),
             usuario.isEstado()
+        );
+    }
+    public UsuarioResponse editarUsuario(Integer id, EditarUsuarioRequest request) {
+        Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!usuario.getEmail().equals(request.getEmail()) &&
+            usuarioRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("El email ya está registrado");
+        }
+
+        Rol rol = rolRepository.findById(request.getRolId())
+            .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+
+        usuario.setNombre(request.getNombre());
+        usuario.setApellidoPaterno(request.getApellidoPaterno());
+        usuario.setApellidoMaterno(request.getApellidoMaterno());
+        usuario.setEmail(request.getEmail());
+        usuario.setRol(rol);
+
+        Usuario guardado = usuarioRepository.save(usuario);
+
+        return new UsuarioResponse(
+            guardado.getId(),
+            guardado.getNombre(),
+            guardado.getApellidoPaterno(),
+            guardado.getApellidoMaterno(),
+            guardado.getEmail(),
+            guardado.getRol().getNombre(),
+            guardado.isEstado()
         );
     }
 }

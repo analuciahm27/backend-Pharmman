@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pharmman.backend.dto.request.CrearUsuarioRequest;
+import com.pharmman.backend.dto.request.EditarUsuarioRequest;
 import com.pharmman.backend.dto.response.UsuarioResponse;
 import com.pharmman.backend.service.UsuarioService;
 
@@ -38,5 +40,11 @@ public class UsuarioController {
     @PatchMapping("/{id}/estado")
     public ResponseEntity<UsuarioResponse> cambiarEstado(@PathVariable Integer id) {
         return ResponseEntity.ok(usuarioService.cambiarEstado(id));
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioResponse> editar(
+            @PathVariable Integer id,
+            @RequestBody EditarUsuarioRequest request) {
+        return ResponseEntity.ok(usuarioService.editarUsuario(id, request));
     }
 }
