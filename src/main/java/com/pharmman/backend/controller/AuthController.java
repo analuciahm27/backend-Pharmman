@@ -23,7 +23,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -67,13 +69,13 @@ public class AuthController {
         if (token != null) {
             try {
                 String email = jwtUtil.extractEmail(token);
-                System.out.println(">>> CERRANDO SESIÓN PARA: " + email);
+                log.info("Cerrando sesión para: {}", email);
                 sesionService.registrarSalida(email);
             } catch (Exception e) {
-                System.out.println(">>> LOGOUT ERROR al extraer email: " + e.getMessage());
+                log.error("Error al extraer email del token en logout: {}", e.getMessage());
             }
         } else {
-            System.out.println(">>> LOGOUT FALLIDO: No se encontró cookie jwt en la petición");
+            log.warn("Logout fallido: no se encontró cookie jwt en la petición");
         }
         Cookie cookie = new Cookie("jwt", null);
         cookie.setPath("/");
@@ -86,7 +88,7 @@ public class AuthController {
     }
     @GetMapping("/me")
     public ResponseEntity<LoginResponse> getMe(Authentication authentication) {
-        System.out.println("=== CONTROLLER /me === auth = " + authentication);
+        log.debug("GET /me - auth: {}", authentication != null ? authentication.getName() : "null");
 
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
