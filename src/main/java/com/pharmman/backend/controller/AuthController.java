@@ -54,28 +54,27 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         String token = null;
-        
-        // 1. Buscamos la cookie "jwt" manualmente
+
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
                 if ("jwt".equals(c.getName())) {
                     token = c.getValue();
-                    break; // Encontrado, dejamos de buscar
+                    break;
                 }
             }
         }
 
-        // 2. Si encontramos el token, extraemos el email y cerramos sesión
         if (token != null) {
-            // CORRECCIÓN: Se agregó el ; al final
-            String email = jwtUtil.extractEmail(token); 
-            System.out.println(">>> CERRANDO SESIÓN PARA: " + email);
-            sesionService.registrarSalida(email);
+            try {
+                String email = jwtUtil.extractEmail(token);
+                System.out.println(">>> CERRANDO SESIÓN PARA: " + email);
+                sesionService.registrarSalida(email);
+            } catch (Exception e) {
+                System.out.println(">>> LOGOUT ERROR al extraer email: " + e.getMessage());
+            }
         } else {
             System.out.println(">>> LOGOUT FALLIDO: No se encontró cookie jwt en la petición");
         }
-
-        // 3. Destruimos la cookie en el navegador
         Cookie cookie = new Cookie("jwt", null);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
