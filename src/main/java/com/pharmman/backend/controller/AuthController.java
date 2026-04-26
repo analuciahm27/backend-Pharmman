@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pharmman.backend.dto.request.LoginRequest;
 import com.pharmman.backend.dto.response.LoginResponse;
 import com.pharmman.backend.service.AuthService;
+import com.pharmman.backend.service.SesionService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final SesionService sesionService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
@@ -47,7 +49,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
+    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response,
+                                                       Authentication authentication) {
+        // Registrar salida de sesión automáticamente (RF02, RF10)
+        if (authentication != null && authentication.isAuthenticated()) {
+            try { sesionService.registrarSalida(authentication.getName()); }
+            catch (Exception ignored) {}
+        }
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
