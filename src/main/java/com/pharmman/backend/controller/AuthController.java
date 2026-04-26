@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pharmman.backend.dto.request.LoginRequest;
 import com.pharmman.backend.dto.response.LoginResponse;
 import com.pharmman.backend.service.AuthService;
+import com.pharmman.backend.service.SesionService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

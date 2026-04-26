@@ -26,19 +26,19 @@ public class CategoriaController {
     private final CategoriaService categoriaService;
 
     @GetMapping
-    @PreAuthorize("@ss.tienePermiso('Productos', 'lectura')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Categoria>> listar() {
         return ResponseEntity.ok(categoriaService.listar());
     }
 
     @PostMapping
-    @PreAuthorize("@ss.tienePermiso('Productos', 'escritura')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Categoria> crear(@RequestBody CrearCategoriaRequest request) {
         return ResponseEntity.ok(categoriaService.crear(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@ss.tienePermiso('Productos', 'escritura')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Categoria> editar(@PathVariable Integer id,
                                              @RequestBody CrearCategoriaRequest request) {
         return ResponseEntity.ok(categoriaService.editar(id, request));
