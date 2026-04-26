@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pharmman.backend.dto.request.LoginRequest;
 import com.pharmman.backend.dto.response.LoginResponse;
+import com.pharmman.backend.security.JwtUtil;
 import com.pharmman.backend.service.AuthService;
 import com.pharmman.backend.service.SesionService;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +31,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final SesionService sesionService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
@@ -49,29 +52,38 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response,
-                                                       Authentication authentication) {
-        // Registrar salida de sesión automáticamente (RF02, RF10)
-        if (authentication != null && authentication.isAuthenticated()) {
-            try {
-                String email = authentication.getName();
-                System.out.println("=== LOGOUT === Registrando salida para: " + email);
-                sesionService.registrarSalida(email);
-                System.out.println("=== LOGOUT === Salida registrada exitosamente");
-            } catch (Exception e) {
-                System.out.println("=== LOGOUT ERROR === " + e.getMessage());
-                e.printStackTrace();
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = null;
+        
+        // 1. Buscamos la cookie "jwt" manualmente
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("jwt".equals(c.getName())) {
+                    token = c.getValue();
+                    break; // Encontrado, dejamos de buscar
+                }
             }
-        } else {
-            System.out.println("=== LOGOUT === No hay autenticación válida");
         }
+
+        // 2. Si encontramos el token, extraemos el email y cerramos sesión
+        if (token != null) {
+            // CORRECCIÓN: Se agregó el ; al final
+            String email = jwtUtil.extractEmail(token); 
+            System.out.println(">>> CERRANDO SESIÓN PARA: " + email);
+            sesionService.registrarSalida(email);
+        } else {
+            System.out.println(">>> LOGOUT FALLIDO: No se encontró cookie jwt en la petición");
+        }
+
+        // 3. Destruimos la cookie en el navegador
         Cookie cookie = new Cookie("jwt", null);
-        cookie.setHttpOnly(true);
         cookie.setPath("/");
+        cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(Map.of("message", "Sesión cerrada correctamente"));
+        // Cambiamos el retorno para que acepte el Map del mensaje
+        return ResponseEntity.ok(Map.of("message", "Adiós"));
     }
     @GetMapping("/me")
     public ResponseEntity<LoginResponse> getMe(Authentication authentication) {

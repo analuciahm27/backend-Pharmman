@@ -66,12 +66,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Rutas públicas (Login y Logout siempre libres)
-                        .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
-                        .anyRequest().authenticated() 
+                    .requestMatchers("/api/auth/login").permitAll()
+                    .requestMatchers("/api/auth/logout").permitAll()
+                    .requestMatchers("/api/auth/me").authenticated() // Asegura que el /me pida login
+                    .anyRequest().authenticated() 
                 )
+                .logout(logout -> logout.disable())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex.accessDeniedHandler(customAccessDeniedHandler));
+                
 
         return http.build();
     }

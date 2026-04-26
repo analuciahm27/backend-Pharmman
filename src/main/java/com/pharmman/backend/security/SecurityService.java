@@ -2,7 +2,6 @@ package com.pharmman.backend.security;
 
 import com.pharmman.backend.repository.IRolPermisoRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component("ss")

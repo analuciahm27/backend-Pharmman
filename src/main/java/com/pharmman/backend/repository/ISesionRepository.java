@@ -11,7 +11,11 @@ import com.pharmman.backend.entity.Sesion;
 
 @Repository
 public interface ISesionRepository extends JpaRepository<Sesion, Integer> {
+    List<Sesion> findByUsuarioIdAndSalidaIsNull(Integer usuarioId);
+
     List<Sesion> findAllByOrderByEntradaDesc();
+    
     Optional<Sesion> findTopByUsuarioIdAndSalidaIsNullOrderByEntradaDesc(Integer usuarioId);
+    
     List<Sesion> findByUsuarioIdAndEntradaBetweenOrderByEntradaDesc(Integer usuarioId, LocalDateTime desde, LocalDateTime hasta);
 }

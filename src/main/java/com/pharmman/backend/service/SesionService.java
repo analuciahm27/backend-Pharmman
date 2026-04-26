@@ -11,6 +11,7 @@ import com.pharmman.backend.entity.Usuario;
 import com.pharmman.backend.repository.ISesionRepository;
 import com.pharmman.backend.repository.IUsuarioRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,14 +30,15 @@ public class SesionService {
         return toResponse(sesionRepository.save(sesion));
     }
 
-    public SesionResponse registrarSalida(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        Sesion sesion = sesionRepository
-            .findTopByUsuarioIdAndSalidaIsNullOrderByEntradaDesc(usuario.getId())
-            .orElseThrow(() -> new RuntimeException("No hay sesión activa"));
-        sesion.setSalida(LocalDateTime.now());
-        return toResponse(sesionRepository.save(sesion));
+    @Transactional // IMPORTANTE: Sin esto, Hibernate no hace el commit a la BD
+    public void registrarSalida(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
+        // Cerramos TODAS las sesiones abiertas de este usuario para limpiar el historial
+        List<Sesion> activas = sesionRepository.findByUsuarioIdAndSalidaIsNull(usuario.getId());
+        for (Sesion s : activas) {
+            s.setSalida(LocalDateTime.now());
+        }
+        sesionRepository.saveAll(activas);
     }
 
     public List<SesionResponse> listar() {
