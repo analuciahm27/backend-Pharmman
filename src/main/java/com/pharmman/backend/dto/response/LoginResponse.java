@@ -1,10 +1,11 @@
 package com.pharmman.backend.dto.response;
 
-import lombok.Data;
-import lombok.AllArgsConstructor;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor
@@ -16,4 +17,5 @@ public class LoginResponse {
     private String email;
     private String rol;
     private List<RolPermisoResponse> permisos;
+    private boolean mustChangePassword;
 }

@@ -8,6 +8,6 @@ public class CrearUsuarioRequest {
     private String apellidoPaterno;
     private String apellidoMaterno;
     private String email;
-    private String password;
+    private String dni;
     private Integer rolId;
 }

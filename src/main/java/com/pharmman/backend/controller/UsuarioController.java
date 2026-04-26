@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pharmman.backend.dto.request.CambiarPasswordRequest;
 import com.pharmman.backend.dto.request.CrearUsuarioRequest;
 import com.pharmman.backend.dto.request.EditarUsuarioRequest;
 import com.pharmman.backend.dto.response.UsuarioResponse;
@@ -51,5 +53,13 @@ public class UsuarioController {
             @PathVariable Integer id,
             @RequestBody EditarUsuarioRequest request) {
         return ResponseEntity.ok(usuarioService.editarUsuario(id, request));
+    }
+
+    @PatchMapping("/cambiar-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> cambiarPassword(@RequestBody CambiarPasswordRequest request,
+                                                 Authentication auth) {
+        usuarioService.cambiarPassword(auth.getName(), request);
+        return ResponseEntity.ok().build();
     }
 }
