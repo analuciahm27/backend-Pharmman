@@ -73,7 +73,8 @@ public class AuthService {
             usuario.getApellidoPaterno(),
             usuario.getEmail(),
             usuario.getRol().getNombre(),
-            permisos
+            permisos,
+            usuario.isMustChangePassword()
         );
     }
     public LoginResponse getUsuarioActual(String email) {
@@ -92,12 +93,13 @@ public class AuthService {
             .toList();
 
         return new LoginResponse(
-            null,  // no devuelve token
+            null,
             usuario.getNombre(),
             usuario.getApellidoPaterno(),
             usuario.getEmail(),
             usuario.getRol().getNombre(),
-            permisos
+            permisos,
+            usuario.isMustChangePassword()
         );
     }
 }

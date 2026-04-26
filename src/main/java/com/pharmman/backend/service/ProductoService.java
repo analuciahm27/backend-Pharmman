@@ -34,6 +34,17 @@ public class ProductoService {
     }
 
     public ProductoResponse crear(CrearProductoRequest request) {
+        // Validaciones
+        if (request.getCodigo() == null || request.getCodigo().trim().isEmpty()) {
+            throw new RuntimeException("El código es obligatorio");
+        }
+        if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {
+            throw new RuntimeException("El nombre es obligatorio");
+        }
+        if (request.getPrecio() == null || request.getPrecio() <= 0) {
+            throw new RuntimeException("El precio debe ser mayor a 0");
+        }
+
         if (productoRepository.existsByCodigo(request.getCodigo()))
             throw new RuntimeException("El código ya está registrado");
 
@@ -41,24 +52,35 @@ public class ProductoService {
             .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
         Producto p = new Producto();
-        p.setCodigo(request.getCodigo());
-        p.setNombre(request.getNombre());
-        p.setDescripcion(request.getDescripcion());
+        p.setCodigo(request.getCodigo().trim());
+        p.setNombre(request.getNombre().trim());
+        p.setDescripcion(request.getDescripcion() != null ? request.getDescripcion().trim() : null);
         p.setPrecio(request.getPrecio());
         p.setCategoria(categoria);
         return toResponse(productoRepository.save(p));
     }
 
     public ProductoResponse editar(Integer id, EditarProductoRequest request) {
+        // Validaciones
+        if (request.getCodigo() == null || request.getCodigo().trim().isEmpty()) {
+            throw new RuntimeException("El código es obligatorio");
+        }
+        if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {
+            throw new RuntimeException("El nombre es obligatorio");
+        }
+        if (request.getPrecio() == null || request.getPrecio() <= 0) {
+            throw new RuntimeException("El precio debe ser mayor a 0");
+        }
+
         Producto p = productoRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
             .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
-        p.setCodigo(request.getCodigo());
-        p.setNombre(request.getNombre());
-        p.setDescripcion(request.getDescripcion());
+        p.setCodigo(request.getCodigo().trim());
+        p.setNombre(request.getNombre().trim());
+        p.setDescripcion(request.getDescripcion() != null ? request.getDescripcion().trim() : null);
         p.setPrecio(request.getPrecio());
         p.setCategoria(categoria);
         return toResponse(productoRepository.save(p));

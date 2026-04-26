@@ -42,7 +42,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setSecure(false);    // true en producción con HTTPS
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 15); // 15 minutos
+        cookie.setMaxAge(60 * 30); // 30 minutos (tiempo de inactividad)
         response.addCookie(cookie);
 
         return ResponseEntity.ok(loginResponse);
@@ -53,8 +53,17 @@ public class AuthController {
                                                        Authentication authentication) {
         // Registrar salida de sesión automáticamente (RF02, RF10)
         if (authentication != null && authentication.isAuthenticated()) {
-            try { sesionService.registrarSalida(authentication.getName()); }
-            catch (Exception ignored) {}
+            try {
+                String email = authentication.getName();
+                System.out.println("=== LOGOUT === Registrando salida para: " + email);
+                sesionService.registrarSalida(email);
+                System.out.println("=== LOGOUT === Salida registrada exitosamente");
+            } catch (Exception e) {
+                System.out.println("=== LOGOUT ERROR === " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("=== LOGOUT === No hay autenticación válida");
         }
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);

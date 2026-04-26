@@ -13,4 +13,4 @@ spring.jpa.show-sql=true
 
 
 jwt.secret=LLAVE_SECRETA_PARA_DESARROLLO_CAMBIAME_12345
-jwt.expiration=900000
+jwt.expiration=1800000
