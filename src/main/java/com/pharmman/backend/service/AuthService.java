@@ -1,5 +1,12 @@
 package com.pharmman.backend.service;
 
+import java.util.List;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import com.pharmman.backend.dto.request.LoginRequest;
 import com.pharmman.backend.dto.response.LoginResponse;
 import com.pharmman.backend.dto.response.RolPermisoResponse;
@@ -7,12 +14,8 @@ import com.pharmman.backend.entity.Usuario;
 import com.pharmman.backend.repository.IRolPermisoRepository;
 import com.pharmman.backend.repository.IUsuarioRepository;
 import com.pharmman.backend.security.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,13 @@ public class AuthService {
     private final IRolPermisoRepository rolPermisoRepository;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    private SesionService getSesionService() {
+        return applicationContext.getBean(SesionService.class);
+    }
 
     public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(
@@ -39,6 +49,9 @@ public class AuthService {
             );
 
         String token = jwtUtil.generateAccessToken(userDetails);
+
+        // Registrar entrada de sesión automáticamente (RF01, RF10)
+        getSesionService().registrarEntrada(request.getEmail());
 
         // obtiene permisos por módulo del rol del usuario
         List<RolPermisoResponse> permisos = rolPermisoRepository

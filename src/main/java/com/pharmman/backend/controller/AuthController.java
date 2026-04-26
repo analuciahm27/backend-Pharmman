@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final SesionService sesionService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
@@ -47,7 +48,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
+    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response,
+                                                       Authentication authentication) {
+        // Registrar salida de sesión automáticamente (RF02, RF10)
+        if (authentication != null && authentication.isAuthenticated()) {
+            try { sesionService.registrarSalida(authentication.getName()); }
+            catch (Exception ignored) {}
+        }
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
