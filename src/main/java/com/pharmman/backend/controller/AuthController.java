@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -104,7 +105,14 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> handleBadCredentials() {
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
-            .body(Map.of("error", "Credenciales incorrectas"));
+            .body(Map.of("error", "credenciales_incorrectas", "mensaje", "Email o contraseña incorrectos."));
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Map<String, String>> handleDisabled() {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(Map.of("error", "usuario_inactivo", "mensaje", "Tu cuenta está desactivada. Contacta al administrador."));
     }
     
 }
