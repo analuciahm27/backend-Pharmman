@@ -34,6 +34,13 @@ public class ProductoController {
         return ResponseEntity.ok(productoService.listar());
     }
 
+    @GetMapping("/siguiente-codigo")
+    @PreAuthorize("@ss.tienePermiso('Productos', 'lectura')")
+    public ResponseEntity<java.util.Map<String, String>> siguienteCodigo(
+            @org.springframework.web.bind.annotation.RequestParam Integer categoriaId) {
+        return ResponseEntity.ok(java.util.Map.of("codigo", productoService.siguienteCodigo(categoriaId)));
+    }
+
     @GetMapping("/buscar")
     @PreAuthorize("@ss.tienePermiso('Productos', 'lectura')")
     public ResponseEntity<List<ProductoResponse>> buscar(@RequestParam String termino) {

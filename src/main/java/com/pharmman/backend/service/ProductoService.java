@@ -21,6 +21,35 @@ public class ProductoService {
     private final IProductoRepository productoRepository;
     private final ICategoriaRepository categoriaRepository;
 
+    public String siguienteCodigo(Integer categoriaId) {
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+            .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+
+        String prefijo = categoria.getPrefijo();
+        if (prefijo == null || prefijo.isBlank())
+            throw new RuntimeException("La categoría no tiene prefijo configurado");
+
+        // Buscar el último código de esta categoría
+        List<Producto> productos = productoRepository.findAll().stream()
+            .filter(p -> p.getCodigo() != null && p.getCodigo().startsWith(prefijo + "-"))
+            .toList();
+
+        int siguiente = 1;
+        if (!productos.isEmpty()) {
+            siguiente = productos.stream()
+                .mapToInt(p -> {
+                    try {
+                        return Integer.parseInt(p.getCodigo().substring(prefijo.length() + 1));
+                    } catch (NumberFormatException e) {
+                        return 0;
+                    }
+                })
+                .max().orElse(0) + 1;
+        }
+
+        return String.format("%s-%03d", prefijo, siguiente);
+    }
+
     public List<ProductoResponse> listar() {
         return productoRepository.findAll().stream()
             .map(this::toResponse)
