@@ -52,7 +52,7 @@ public class ProductoService {
             .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
         Producto p = new Producto();
-        p.setCodigo(request.getCodigo().trim());
+        p.setCodigo(request.getCodigo().trim().toUpperCase());
         p.setNombre(request.getNombre().trim());
         p.setDescripcion(request.getDescripcion() != null ? request.getDescripcion().trim() : null);
         p.setPrecio(request.getPrecio());
@@ -78,7 +78,7 @@ public class ProductoService {
         Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
             .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
-        p.setCodigo(request.getCodigo().trim());
+        p.setCodigo(request.getCodigo().trim().toUpperCase());
         p.setNombre(request.getNombre().trim());
         p.setDescripcion(request.getDescripcion() != null ? request.getDescripcion().trim() : null);
         p.setPrecio(request.getPrecio());
