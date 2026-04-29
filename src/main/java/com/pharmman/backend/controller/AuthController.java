@@ -104,7 +104,14 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> handleBadCredentials() {
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
-            .body(Map.of("error", "Credenciales incorrectas"));
+            .body(Map.of("error", "credenciales_incorrectas", "mensaje", "Email o contraseña incorrectos."));
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Map<String, String>> handleDisabled() {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(Map.of("error", "usuario_inactivo", "mensaje", "Tu cuenta está desactivada. Contacta al administrador."));
     }
     
 }
