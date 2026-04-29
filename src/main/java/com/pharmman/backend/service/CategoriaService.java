@@ -23,6 +23,8 @@ public class CategoriaService {
     public Categoria crear(CrearCategoriaRequest request) {
         Categoria c = new Categoria();
         c.setNombre(request.getNombre());
+        if (request.getPrefijo() != null)
+            c.setPrefijo(request.getPrefijo().trim().toUpperCase());
         return categoriaRepository.save(c);
     }
 
@@ -30,6 +32,8 @@ public class CategoriaService {
         Categoria c = categoriaRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         c.setNombre(request.getNombre());
+        if (request.getPrefijo() != null)
+            c.setPrefijo(request.getPrefijo().trim().toUpperCase());
         return categoriaRepository.save(c);
     }
 }
