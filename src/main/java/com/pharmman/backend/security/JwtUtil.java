@@ -14,7 +14,7 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    private static final long EXPIRATION = 1000 * 60 * 15; // 15 minutos
+    private static final long EXPIRATION = 1000 * 60;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
@@ -36,6 +36,19 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    /**
+     * Extrae el email incluso si el token está expirado.
+     * Útil para registrar la salida en logout cuando el token ya venció.
+     */
+    public String extractEmailIgnoringExpiration(String token) {
+        try {
+            return extractEmail(token);
+        } catch (ExpiredJwtException e) {
+            // El token expiró pero el subject sigue siendo válido
+            return e.getClaims().getSubject();
+        }
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

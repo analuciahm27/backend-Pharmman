@@ -69,7 +69,7 @@ public class AuthController {
 
         if (token != null) {
             try {
-                String email = jwtUtil.extractEmail(token);
+                String email = jwtUtil.extractEmailIgnoringExpiration(token);
                 log.info("Cerrando sesión para: {}", email);
                 sesionService.registrarSalida(email);
             } catch (Exception e) {
