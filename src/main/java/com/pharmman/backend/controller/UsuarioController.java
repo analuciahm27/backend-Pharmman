@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import com.pharmman.backend.dto.request.EditarUsuarioRequest;
 import com.pharmman.backend.dto.response.UsuarioResponse;
 import com.pharmman.backend.service.UsuarioService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,7 +40,7 @@ public class UsuarioController {
     @PostMapping
     @PreAuthorize("@ss.tienePermiso('USUARIOS', 'escritura')")
     public ResponseEntity<UsuarioResponse> crear(
-            @RequestBody CrearUsuarioRequest request) {
+            @Valid @RequestBody CrearUsuarioRequest request) {
         return ResponseEntity.ok(usuarioService.crearUsuario(request));
     }
 
@@ -51,7 +53,7 @@ public class UsuarioController {
     @PreAuthorize("@ss.tienePermiso('USUARIOS', 'escritura')")
     public ResponseEntity<UsuarioResponse> editar(
             @PathVariable Integer id,
-            @RequestBody EditarUsuarioRequest request) {
+            @Valid @RequestBody EditarUsuarioRequest request) {
         return ResponseEntity.ok(usuarioService.editarUsuario(id, request));
     }
 

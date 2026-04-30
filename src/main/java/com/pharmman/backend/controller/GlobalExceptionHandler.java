@@ -3,6 +3,8 @@ package com.pharmman.backend.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -11,6 +13,18 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    // Captura errores de validación (@Valid)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex) {
+        String mensaje = ex.getBindingResult().getFieldErrors().stream()
+            .findFirst()
+            .map(FieldError::getDefaultMessage)
+            .orElse("Error de validación");
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", mensaje);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+    }
 
     // Este es el que capturará los fallos del @PreAuthorize
     @ExceptionHandler(AccessDeniedException.class)
