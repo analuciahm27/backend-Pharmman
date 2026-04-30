@@ -18,4 +18,6 @@ public interface ISesionRepository extends JpaRepository<Sesion, Integer> {
     Optional<Sesion> findTopByUsuarioIdAndSalidaIsNullOrderByEntradaDesc(Integer usuarioId);
     
     List<Sesion> findByUsuarioIdAndEntradaBetweenOrderByEntradaDesc(Integer usuarioId, LocalDateTime desde, LocalDateTime hasta);
+
+    List<Sesion> findByEntradaBeforeAndSalidaIsNull(LocalDateTime limite);
 }
