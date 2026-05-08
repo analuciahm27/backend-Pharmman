@@ -49,14 +49,14 @@ public class ProductoController {
 
     @PostMapping
     @PreAuthorize("@ss.tienePermiso('Productos', 'escritura')")
-    public ResponseEntity<ProductoResponse> crear(@RequestBody CrearProductoRequest request) {
+    public ResponseEntity<ProductoResponse> crear(@Valid @RequestBody CrearProductoRequest request) {
         return ResponseEntity.ok(productoService.crear(request));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("@ss.tienePermiso('Productos', 'escritura')")
     public ResponseEntity<ProductoResponse> editar(@PathVariable Integer id,
-                                                    @RequestBody EditarProductoRequest request) {
+                                                    @Valid @RequestBody EditarProductoRequest request) {
         return ResponseEntity.ok(productoService.editar(id, request));
     }
 
