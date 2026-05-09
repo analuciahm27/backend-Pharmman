@@ -19,6 +19,7 @@ import com.pharmman.backend.dto.request.EditarProductoRequest;
 import com.pharmman.backend.dto.response.ProductoResponse;
 import com.pharmman.backend.service.ProductoService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
