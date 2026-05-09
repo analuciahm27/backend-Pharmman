@@ -7,4 +7,8 @@ import com.pharmman.backend.entity.Categoria;
 
 @Repository
 public interface ICategoriaRepository extends JpaRepository<Categoria, Integer> {
+    boolean existsByNombreIgnoreCase(String nombre);
+    boolean existsByPrefijoIgnoreCase(String prefijo);
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Integer id);
+    boolean existsByPrefijoIgnoreCaseAndIdNot(String prefijo, Integer id);
 }
