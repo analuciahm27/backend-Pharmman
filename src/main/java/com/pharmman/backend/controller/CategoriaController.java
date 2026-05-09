@@ -16,6 +16,7 @@ import com.pharmman.backend.dto.request.CrearCategoriaRequest;
 import com.pharmman.backend.entity.Categoria;
 import com.pharmman.backend.service.CategoriaService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
