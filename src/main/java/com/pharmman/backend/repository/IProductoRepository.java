@@ -12,4 +12,5 @@ public interface IProductoRepository extends JpaRepository<Producto, Integer> {
     boolean existsByCodigo(String codigo);
     List<Producto> findByNombreContainingIgnoreCaseOrCodigoContainingIgnoreCase(String nombre, String codigo);
     List<Producto> findByActivoTrue();
+    List<Producto> findByCategoriaId(Integer categoriaId);
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pharmman.backend.dto.request.CrearCategoriaRequest;
@@ -41,7 +42,8 @@ public class CategoriaController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Categoria> editar(@PathVariable Integer id,
-                                             @Valid @RequestBody CrearCategoriaRequest request) {
-        return ResponseEntity.ok(categoriaService.editar(id, request));
+                                             @Valid @RequestBody CrearCategoriaRequest request,
+                                             @RequestParam(defaultValue = "false") boolean actualizarCodigos) {
+        return ResponseEntity.ok(categoriaService.editar(id, request, actualizarCodigos));
     }
 }
