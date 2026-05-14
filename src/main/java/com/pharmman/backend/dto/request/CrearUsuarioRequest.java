@@ -20,8 +20,9 @@ public class CrearUsuarioRequest {
              message = "El apellido paterno solo puede contener letras y espacios")
     private String apellidoPaterno;
 
+    @NotBlank(message = "El apellido materno es obligatorio")
     @Size(min = 3, max = 100, message = "El apellido materno debe tener entre 3 y 100 caracteres")
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s]*$",
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s]+$",
              message = "El apellido materno solo puede contener letras y espacios")
     private String apellidoMaterno;
 
