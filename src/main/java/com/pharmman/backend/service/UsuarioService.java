@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsuarioService {
 
+    private static final String DOMINIO = "@pharmman.com";
+
     private final IUsuarioRepository usuarioRepository;
     private final IRolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
@@ -32,40 +34,43 @@ public class UsuarioService {
     }
 
     public UsuarioResponse crearUsuario(CrearUsuarioRequest request) {
-        // Validaciones
-        if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {
-            throw new RuntimeException("El nombre es obligatorio");
+        // Bean Validation ya verificó formato; aquí solo validamos reglas de negocio
+
+        // Validar que el nombre no sea solo espacios (doble seguridad)
+        if (request.getNombre().trim().isEmpty()) {
+            throw new RuntimeException("El nombre no debe ser espacios");
         }
-        if (request.getApellidoPaterno() == null || request.getApellidoPaterno().trim().isEmpty()) {
-            throw new RuntimeException("El apellido paterno es obligatorio");
+        if (request.getApellidoPaterno().trim().isEmpty()) {
+            throw new RuntimeException("El apellido paterno no debe ser espacios");
         }
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            throw new RuntimeException("El email es obligatorio");
-        }
-        if (request.getDni() == null || !request.getDni().matches("^\\d{8}$")) {
-            throw new RuntimeException("El DNI debe tener exactamente 8 dígitos numéricos");
+        if (request.getApellidoMaterno().trim().isEmpty()) {
+            throw new RuntimeException("El apellido materno no debe ser espacios");
         }
 
-        if (usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya está registrado");
+        // Construir email completo a partir del prefijo
+        String emailCompleto = request.getEmailPrefijo().toLowerCase() + DOMINIO;
+
+        // Validar duplicado de prefijo
+        if (usuarioRepository.existsByEmail(emailCompleto)) {
+            throw new RuntimeException("El prefijo ya está registrado");
         }
 
+        // Validar rol
         Rol rol = rolRepository.findById(request.getRolId())
             .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre().trim());
         usuario.setApellidoPaterno(request.getApellidoPaterno().trim());
-        usuario.setApellidoMaterno(request.getApellidoMaterno() != null ? request.getApellidoMaterno().trim() : null);
-        usuario.setEmail(request.getEmail().trim().toLowerCase());
+        usuario.setApellidoMaterno(request.getApellidoMaterno().trim());
+        usuario.setEmail(emailCompleto);
         usuario.setDni(request.getDni());
-        // Contraseña inicial = DNI (RF: mustChangePassword)
+        // Contraseña inicial = DNI (el usuario debe cambiarla en el primer login)
         usuario.setPasswordHash(passwordEncoder.encode(request.getDni()));
         usuario.setMustChangePassword(true);
         usuario.setRol(rol);
 
-        Usuario guardado = usuarioRepository.save(usuario);
-        return toResponse(guardado);
+        return toResponse(usuarioRepository.save(usuario));
     }
 
     public UsuarioResponse cambiarEstado(Integer id) {
@@ -77,32 +82,37 @@ public class UsuarioService {
     }
 
     public UsuarioResponse editarUsuario(Integer id, EditarUsuarioRequest request) {
-        // Validaciones
-        if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {
-            throw new RuntimeException("El nombre es obligatorio");
+        // Validar que los campos no sean solo espacios (doble seguridad)
+        if (request.getNombre().trim().isEmpty()) {
+            throw new RuntimeException("El nombre no debe ser espacios");
         }
-        if (request.getApellidoPaterno() == null || request.getApellidoPaterno().trim().isEmpty()) {
-            throw new RuntimeException("El apellido paterno es obligatorio");
+        if (request.getApellidoPaterno().trim().isEmpty()) {
+            throw new RuntimeException("El apellido paterno no debe ser espacios");
         }
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            throw new RuntimeException("El email es obligatorio");
+        if (request.getApellidoMaterno().trim().isEmpty()) {
+            throw new RuntimeException("El apellido materno no debe ser espacios");
         }
 
         Usuario usuario = usuarioRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (!usuario.getEmail().equals(request.getEmail()) &&
-            usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya está registrado");
+        // Construir email completo a partir del prefijo
+        String emailCompleto = request.getEmailPrefijo().toLowerCase() + DOMINIO;
+
+        // Validar duplicado solo si el prefijo cambió
+        if (!usuario.getEmail().equals(emailCompleto) &&
+            usuarioRepository.existsByEmail(emailCompleto)) {
+            throw new RuntimeException("El prefijo ya está registrado");
         }
 
+        // Validar rol
         Rol rol = rolRepository.findById(request.getRolId())
             .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
         usuario.setNombre(request.getNombre().trim());
         usuario.setApellidoPaterno(request.getApellidoPaterno().trim());
-        usuario.setApellidoMaterno(request.getApellidoMaterno() != null ? request.getApellidoMaterno().trim() : null);
-        usuario.setEmail(request.getEmail().trim().toLowerCase());
+        usuario.setApellidoMaterno(request.getApellidoMaterno().trim());
+        usuario.setEmail(emailCompleto);
         usuario.setRol(rol);
 
         return toResponse(usuarioRepository.save(usuario));
@@ -112,8 +122,9 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (!passwordEncoder.matches(request.getPasswordActual(), usuario.getPasswordHash()))
+        if (!passwordEncoder.matches(request.getPasswordActual(), usuario.getPasswordHash())) {
             throw new RuntimeException("La contraseña actual es incorrecta");
+        }
 
         usuario.setPasswordHash(passwordEncoder.encode(request.getPasswordNueva()));
         usuario.setMustChangePassword(false);
