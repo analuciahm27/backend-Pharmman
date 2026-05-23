@@ -123,10 +123,13 @@ class CrearUsuarioRequestValidationTest {
             assertThat(tieneViolacionEn(validar(r), "nombre")).isTrue();
         }
 
-        @Test @Order(8) @DisplayName("CU-08 | Nombre con más de 100 caracteres → ❌ Máximo 100 caracteres")
+        @Test @Order(8) @DisplayName("CU-08 | Nombre con exactamente 101 caracteres (B+1) → ❌ Máximo 100 caracteres")
         void nombreLimiteSuperiorInvalido() {
+            // Técnica de tres puntos: B-1=99 ✅, B=100 ✅, B+1=101 ❌
+            String nombre101 = "A" + "n".repeat(99) + "a"; // longitud exacta: 101
+            assertThat(nombre101.length()).isEqualTo(101);
             CrearUsuarioRequest r = requestValido();
-            r.setNombre("A" + "n".repeat(100));
+            r.setNombre(nombre101);
             assertThat(tieneViolacionEn(validar(r), "nombre")).isTrue();
         }
 
@@ -224,10 +227,13 @@ class CrearUsuarioRequestValidationTest {
             assertThat(tieneViolacionEn(validar(r), "apellidoPaterno")).isTrue();
         }
 
-        @Test @Order(10) @DisplayName("CU-21 | Apellido paterno con más de 100 caracteres → ❌ Máximo 100 caracteres")
+        @Test @Order(10) @DisplayName("CU-21 | Apellido paterno con exactamente 101 caracteres (B+1) → ❌ Máximo 100 caracteres")
         void apellidoPaternoLimiteSuperiorInvalido() {
+            // Técnica de tres puntos: B-1=99 ✅, B=100 ✅, B+1=101 ❌
+            String apellido101 = "G" + "a".repeat(99) + "r"; // longitud exacta: 101
+            assertThat(apellido101.length()).isEqualTo(101);
             CrearUsuarioRequest r = requestValido();
-            r.setApellidoPaterno("G" + "a".repeat(100));
+            r.setApellidoPaterno(apellido101);
             assertThat(tieneViolacionEn(validar(r), "apellidoPaterno")).isTrue();
         }
     }
@@ -304,10 +310,13 @@ class CrearUsuarioRequestValidationTest {
             assertThat(tieneViolacionEn(validar(r), "apellidoMaterno")).isTrue();
         }
 
-        @Test @Order(10) @DisplayName("CU-31 | Apellido materno con más de 100 caracteres → ❌ Máximo 100 caracteres")
+        @Test @Order(10) @DisplayName("CU-31 | Apellido materno con exactamente 101 caracteres (B+1) → ❌ Máximo 100 caracteres")
         void apellidoMaternoLimiteSuperiorInvalido() {
+            // Técnica de tres puntos: B-1=99 ✅, B=100 ✅, B+1=101 ❌
+            String apellido101 = "L" + "o".repeat(99) + "z"; // longitud exacta: 101
+            assertThat(apellido101.length()).isEqualTo(101);
             CrearUsuarioRequest r = requestValido();
-            r.setApellidoMaterno("L" + "o".repeat(100));
+            r.setApellidoMaterno(apellido101);
             assertThat(tieneViolacionEn(validar(r), "apellidoMaterno")).isTrue();
         }
     }
@@ -448,6 +457,39 @@ class CrearUsuarioRequestValidationTest {
             CrearUsuarioRequest r = requestValido();
             r.setDni("        ");
             assertThat(tieneViolacionEn(validar(r), "dni")).isTrue();
+        }
+    }
+
+    // =========================================================================
+    // ROL
+    // =========================================================================
+    @Nested
+    @DisplayName("Rol")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @ExtendWith(CrearUsuarioRequestValidationTest.ResultLogger.class)
+    class RolTests {
+
+        @Test @Order(1) @DisplayName("CU-50 | Rol válido existente (ID=1) → ✅ Válido")
+        void rolValido() {
+            CrearUsuarioRequest r = requestValido();
+            r.setRolId(1);
+            assertThat(validar(r)).isEmpty();
+        }
+
+        @Test @Order(2) @DisplayName("CU-51 | Sin rol asignado (null) → ❌ Rol no encontrado")
+        void rolNulo() {
+            CrearUsuarioRequest r = requestValido();
+            r.setRolId(null);
+            assertThat(tieneViolacionEn(validar(r), "rolId")).isTrue();
+        }
+
+        @Test @Order(3) @DisplayName("CU-52 | Rol con ID inexistente (999) → ✅ Pasa validación de bean (la existencia se verifica en servicio)")
+        void rolIdInexistente() {
+            // Bean Validation solo verifica que rolId no sea null.
+            // La verificación de existencia en BD ocurre en la capa de servicio.
+            CrearUsuarioRequest r = requestValido();
+            r.setRolId(999);
+            assertThat(tieneViolacionEn(validar(r), "rolId")).isFalse();
         }
     }
 }
