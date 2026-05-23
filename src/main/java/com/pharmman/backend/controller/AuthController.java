@@ -48,7 +48,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setSecure(false);    // true en producción con HTTPS
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 30); // 30 minutos (tiempo de inactividad)
+        cookie.setMaxAge(60 * 60 * 8); // 8 horas
         response.addCookie(cookie);
 
         return ResponseEntity.ok(loginResponse);
