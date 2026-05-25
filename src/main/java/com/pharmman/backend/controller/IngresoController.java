@@ -25,7 +25,7 @@ public class IngresoController {
     private final IngresoService ingresoService;
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@ss.tienePermiso('Ingresos', 'escritura')")
     public ResponseEntity<IngresoResponse> registrar(@RequestBody RegistrarIngresoRequest request,
                                                       Authentication auth) {
         return ResponseEntity.ok(ingresoService.registrar(request, auth.getName()));

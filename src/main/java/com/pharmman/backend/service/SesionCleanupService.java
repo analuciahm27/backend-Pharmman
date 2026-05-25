@@ -21,18 +21,18 @@ public class SesionCleanupService {
     private final ISesionRepository sesionRepository;
 
     /**
-     * Cada 5 minutos, cierra las sesiones que llevan más de 35 minutos
+     * Cada 5 minutos, cierra las sesiones que llevan más de 485 minutos (8 horas + 5 min de margen)
      * sin registrar salida (token expirado o pestaña cerrada sin logout).
-     * 35 min = tiempo de expiración del token (30 min) + margen de 5 min.
+     * 485 min = tiempo de expiración del token (480 min = 8 horas) + margen de 5 min.
      */
     @Scheduled(fixedDelay = 5 * 60 * 1000) // cada 5 minutos
     @Transactional
     public void cerrarSesionesExpiradas() {
-        LocalDateTime limite = LocalDateTime.now().minusMinutes(35);
+        LocalDateTime limite = LocalDateTime.now().minusMinutes(485);
         List<Sesion> expiradas = sesionRepository.findByEntradaBeforeAndSalidaIsNull(limite);
         if (!expiradas.isEmpty()) {
             log.info("Cerrando {} sesión(es) expirada(s) automáticamente", expiradas.size());
-            expiradas.forEach(s -> s.setSalida(s.getEntrada().plusMinutes(30)));
+            expiradas.forEach(s -> s.setSalida(s.getEntrada().plusMinutes(480)));
             sesionRepository.saveAll(expiradas);
         }
     }
