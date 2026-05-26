@@ -37,8 +37,14 @@ public class GlobalExceptionHandler {
     }
 
     // Opcional: Captura errores de "No encontrado" (como cuando buscas un usuario que no existe)
+    // NOTA: AccessDeniedException extiende RuntimeException, por eso su handler específico
+    // debe declararse ANTES de este, o excluirla explícitamente aquí.
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
+        // Dejar que AccessDeniedException la maneje su propio handler
+        if (ex instanceof org.springframework.security.access.AccessDeniedException) {
+            throw (org.springframework.security.access.AccessDeniedException) ex;
+        }
         Map<String, String> respuesta = new HashMap<>();
         respuesta.put("mensaje", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
