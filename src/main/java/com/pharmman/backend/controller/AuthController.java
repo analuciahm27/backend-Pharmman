@@ -3,6 +3,7 @@ package com.pharmman.backend.controller;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -43,13 +44,15 @@ public class AuthController {
 
         LoginResponse loginResponse = authService.login(request);
 
-        // setea la cookie HttpOnly con el token
-        Cookie cookie = new Cookie("jwt", loginResponse.getToken());
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);    // true en producción con HTTPS
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 8); // 8 horas
-        response.addCookie(cookie);
+        // setea la cookie HttpOnly con SameSite=Strict
+        ResponseCookie cookie = ResponseCookie.from("jwt", loginResponse.getToken())
+                .httpOnly(true)
+                .secure(false)          // true en producción con HTTPS
+                .path("/")
+                .maxAge(60 * 60 * 8)   // 8 horas
+                .sameSite("Strict")
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
 
         return ResponseEntity.ok(loginResponse);
     }

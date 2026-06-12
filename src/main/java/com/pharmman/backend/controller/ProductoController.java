@@ -30,7 +30,7 @@ public class ProductoController {
     private final ProductoService productoService;
 
     @GetMapping
-    @PreAuthorize("@ss.tienePermiso('Productos', 'lectura')")
+    @PreAuthorize("@ss.tieneAlgunPermiso('Productos','lectura','Ventas','escritura','Ingresos','escritura')")
     public ResponseEntity<List<ProductoResponse>> listar() {
         return ResponseEntity.ok(productoService.listar());
     }
@@ -43,7 +43,7 @@ public class ProductoController {
     }
 
     @GetMapping("/buscar")
-    @PreAuthorize("@ss.tienePermiso('Productos', 'lectura')")
+    @PreAuthorize("@ss.tieneAlgunPermiso('Productos','lectura','Ventas','escritura','Ingresos','escritura')")
     public ResponseEntity<List<ProductoResponse>> buscar(@RequestParam String termino) {
         return ResponseEntity.ok(productoService.buscar(termino));
     }

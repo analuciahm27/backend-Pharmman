@@ -34,13 +34,13 @@ public class CategoriaController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@ss.tienePermiso('Productos', 'escritura')")
     public ResponseEntity<Categoria> crear(@Valid @RequestBody CrearCategoriaRequest request) {
         return ResponseEntity.ok(categoriaService.crear(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@ss.tienePermiso('Productos', 'escritura')")
     public ResponseEntity<Categoria> editar(@PathVariable Integer id,
                                              @Valid @RequestBody CrearCategoriaRequest request,
                                              @RequestParam(defaultValue = "false") boolean actualizarCodigos) {
