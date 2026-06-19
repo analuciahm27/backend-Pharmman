@@ -13,4 +13,5 @@ public interface IProductoRepository extends JpaRepository<Producto, Integer> {
     List<Producto> findByNombreContainingIgnoreCaseOrCodigoContainingIgnoreCase(String nombre, String codigo);
     List<Producto> findByActivoTrue();
     List<Producto> findByCategoriaId(Integer categoriaId);
+    List<Producto> findByCodigoStartingWith(String prefijo);
 }

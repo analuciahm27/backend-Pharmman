@@ -29,10 +29,8 @@ public class ProductoService {
         if (prefijo == null || prefijo.isBlank())
             throw new RuntimeException("La categoría no tiene prefijo configurado");
 
-        // Buscar el último código de esta categoría
-        List<Producto> productos = productoRepository.findAll().stream()
-            .filter(p -> p.getCodigo() != null && p.getCodigo().startsWith(prefijo + "-"))
-            .toList();
+        // Buscar solo los productos con el prefijo de esta categoría, delegando el filtro a la BD
+        List<Producto> productos = productoRepository.findByCodigoStartingWith(prefijo + "-");
 
         int siguiente = 1;
         if (!productos.isEmpty()) {
